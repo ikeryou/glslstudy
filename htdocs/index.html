@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>GLSL STUDY</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="keywords" content="">
+  <meta name="description" content="">
+  <meta property="og:description" content="" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="" />
+  <meta property="og:image" content="" />
+  <meta property="og:site_name" content="" />
+  <meta property="og:title" content="" />
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="">
+  <meta name="twitter:description" content="">
+  <meta name="twitter:image" content="">
+  <link rel="stylesheet" href="./assets/css/html5reset-1.6.1.css">
+  
+  <script id="vs" type="x-shader/x-vertex">
+    
+    attribute vec3 position;
+    attribute vec3 normal;
+    
+    uniform mat4 mvpMatrix;
+    uniform bool edge;
+    uniform float lineWidth;
+    
+    varying vec3 vNormal;
+    
+    void main(void) {
+      
+      vec3 pos = position;
+      if(edge) {
+        pos += normal * lineWidth;
+      }
+      vNormal = normal;
+      gl_Position = mvpMatrix * vec4(pos, 1.0);
+      
+    }
+    
+  </script>
+  <script id="fs" type="x-shader/x-fragment">
+    
+    precision highp float;
+    
+    uniform mat4 invMatrix;
+    uniform vec3 lightDirection;
+    uniform sampler2D texture;
+    uniform vec4 edgeColor;
+    uniform vec4 ballColor;
+    uniform float lineScale;
+    
+    varying vec3 vNormal;
+    
+    void main(void) {
+      
+      if(edgeColor.a > 0.0) {
+        gl_FragColor = edgeColor;
+      } else {
+        vec3 invLight = normalize(invMatrix * vec4(lightDirection, 0.0)).xyz;
+        float diffuse = clamp(dot(vNormal, invLight), 0.0, 1.0);
+        vec4 smpColor = texture2D(texture, vec2(diffuse, 0.0));
+        
+        vec2 v = gl_FragCoord.xy * lineScale;
+        float f = sin(v.x + v.y);
+        
+        float s;
+        if(diffuse > 0.7){
+            s = 0.9;
+        }else if(diffuse > 0.3){
+            s = 0.6;
+        }else{
+            s = 0.3;
+        }
+        
+        gl_FragColor = vec4(ballColor.rgb * smpColor.rgb * (diffuse + f + s), 1.0);
+        
+      }
+      
+    }
+    
+  </script>
+</head>
+<body>
+  <canvas id="xCanvas"></canvas>
+  <script src="./assets/js/libs/jquery-1.11.3.min.js"></script>
+  <script src="./assets/js/libs/Stats.js"></script>
+  <script src="./assets/js/libs/dat.gui.min.js"></script>
+  <script src="./assets/js/libs/minMatrixb.js"></script>
+  <script src="./assets/js/main.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
