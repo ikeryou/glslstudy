@@ -104,6 +104,8 @@ class Contents
     @_attachUniform(@_prg, "time", "float", time);
     @_attachUniform(@_prg, "mouse", "vec2", [MY.mouse.x / @_c.width, MY.mouse.y / @_c.height]);
     @_attachUniform(@_prg, "resolution", "vec2", [@_c.width, @_c.height]);
+    @_attachUniform(@_prg, "cPos", "vec3", [MY.param.cx, MY.param.cy, MY.param.cz]);
+    @_attachUniform(@_prg, "cDir", "vec3", [MY.param.cDirX, MY.param.cDirY, MY.param.cDirZ]);
     
     # 描画
     @_gl.drawElements(@_gl.TRIANGLES, @_mdl.i.length, @_gl.UNSIGNED_SHORT, 0);

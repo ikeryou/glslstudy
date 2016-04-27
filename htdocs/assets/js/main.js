@@ -90,6 +90,8 @@ Contents = (function() {
     this._attachUniform(this._prg, "time", "float", time);
     this._attachUniform(this._prg, "mouse", "vec2", [MY.mouse.x / this._c.width, MY.mouse.y / this._c.height]);
     this._attachUniform(this._prg, "resolution", "vec2", [this._c.width, this._c.height]);
+    this._attachUniform(this._prg, "cPos", "vec3", [MY.param.cx, MY.param.cy, MY.param.cz]);
+    this._attachUniform(this._prg, "cDir", "vec3", [MY.param.cDirX, MY.param.cDirY, MY.param.cDirZ]);
     this._gl.drawElements(this._gl.TRIANGLES, this._mdl.i.length, this._gl.UNSIGNED_SHORT, 0);
     return this._gl.flush();
   };
@@ -418,8 +420,12 @@ Param = (function() {
     this._setGuiNum = bind(this._setGuiNum, this);
     this._init = bind(this._init, this);
     this._gui;
-    this.line = 10;
-    this.lineScale = MY.u.isSmt() ? 50 : 100;
+    this.cx = 0;
+    this.cy = 0;
+    this.cz = 2;
+    this.cDirX = 0;
+    this.cDirY = 0;
+    this.cDirZ = -1;
     this.callBack = {};
     this._init();
   }
@@ -427,8 +433,12 @@ Param = (function() {
   Param.prototype._init = function() {
     if (MY.conf.FLG.PARAM) {
       this._gui = new dat.GUI();
-      this._setGuiNum("line", 0, 20, 0.1);
-      return this._setGuiNum("lineScale", 0, 400, 1);
+      this._setGuiNum("cx", -10, 10, 0.1);
+      this._setGuiNum("cy", -10, 10, 0.1);
+      this._setGuiNum("cz", -10, 10, 0.1);
+      this._setGuiNum("cDirX", -10, 10, 0.1);
+      this._setGuiNum("cDirY", -10, 10, 0.1);
+      return this._setGuiNum("cDirZ", -10, 10, 0.1);
     }
   };
 

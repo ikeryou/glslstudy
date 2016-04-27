@@ -34,9 +34,10 @@
     uniform float time;
     uniform vec2 mouse;
     uniform vec2 resolution;
+    uniform vec3 cPos;
+    uniform vec3 cDir;
     
-    const vec3 boxSize = vec3(0.5, 0.5, 0.5);
-    const vec3 lightDir = vec3(-0.577, 0.577, 0.577);
+    const vec3 lightDir = vec3(-0.57, 0.57, 0.57);
     
     const int   oct      = 8;
     const float per      = 0.5;
@@ -103,21 +104,31 @@
       return mod(p, n) - n * 0.5;
     }
     
-    // 距離関数 Sphere
-    float distanceFunc(vec3 p) {
-      //vec3 q = abs(trans(p));
-      vec3 q = abs(p);
-      //return length(max(q - boxSize, 0.0));
-      return length(max(q - boxSize, 0.0)) - 0.1; // 角丸
+    // 距離関数 床
+    float distFuncFloor(vec3 p) {
+      return dot(p, vec3(0.0, 1.0, 0.0)) + 1.0;
+    }
+    
+    // 距離関数 トーラス
+    float distFuncTorus(vec3 p) {
+      vec2 t = vec2(0.75, 0.25);
+      vec2 r = vec2(length(p.xy) - t.x, p.z);
+      return length(r) - t.y;
+    }
+    
+    float distFunc(vec3 p) {
+      float d1 = distFuncTorus(p);
+      float d2 = distFuncFloor(p);
+      return min(d1, d2);
     }
     
     // 法線算出
     vec3 getNormal(vec3 p) {
       float d = 0.0001;
       return normalize(vec3(
-        distanceFunc(p + vec3(d, 0.0, 0.0)) - distanceFunc(p + vec3(-d, 0.0, 0.0)),
-        distanceFunc(p + vec3(0.0, d, 0.0)) - distanceFunc(p + vec3(0.0, -d, 0.0)),
-        distanceFunc(p + vec3(0.0, 0.0, d)) - distanceFunc(p + vec3(0.0, 0.0, -d))
+        distFunc(p + vec3(d, 0.0, 0.0)) - distFunc(p + vec3(-d, 0.0, 0.0)),
+        distFunc(p + vec3(0.0, d, 0.0)) - distFunc(p + vec3(0.0, -d, 0.0)),
+        distFunc(p + vec3(0.0, 0.0, d)) - distFunc(p + vec3(0.0, 0.0, -d))
       ));
     }
     
@@ -129,31 +140,34 @@
       vec2 p = (gl_FragCoord.xy * 2.0 - resolution) / min(resolution.x, resolution.y);
       
       // camera
-      vec3 cPos = vec3(0.0, 0.0, 2.0);
-      vec3 cDir = vec3(0.0, 0.0, -1.0);
+      //vec3 cPos = vec3(0.0, 0.0, 2.0);
+      //vec3 cDir = vec3(0.0, 0.0, -1.0);
       vec3 cUp  = vec3(0.0, 1.0, 0.0);
       vec3 cSide = cross(cDir, cUp);
       float targetDepth = 1.0;
       
       // ray 
-      vec3 ray = normalize(vec3(sin(fov) * p.x, sin(fov) * p.y, -cos(fov)));
+      vec3 ray = normalize(cSide * p.x + cUp * p.y + cDir * targetDepth);
       
-      float distance = 0.0;
-      float rLen = 0.0;
-      vec3 rPos = cPos;
+      // marching loop
+      float tmp, dist;
+      tmp = 0.0;
+      vec3 dPos = cPos;
       for(int i = 0; i < 64; i++) {
-        distance = distanceFunc(rPos);
-        rLen += distance;
-        rPos = cPos + ray * rLen;
+        dist = distFunc(dPos);
+        tmp += dist;
+        dPos = cPos + tmp * ray;
       }
       
-      if(abs(distance) < 0.001) {
-        vec3 normal = getNormal(rPos);
-        float diff = clamp(dot(lightDir, normal), 0.2, 1.0);
-        gl_FragColor = vec4(vec3(diff), 1.0);
+      vec3 color;
+      if(abs(dist) < 0.001) {
+        vec3 normal = getNormal(dPos);
+        float diff = clamp(dot(lightDir, normal), 0.1, 1.0);
+        color = vec3(1.0) * diff;
       } else {
-        gl_FragColor = vec4(vec3(0.0), 1.0);
+        color = vec3(0.0);
       }
+      gl_FragColor = vec4(color, 1.0);
       
     }
     

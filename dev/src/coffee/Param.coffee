@@ -13,8 +13,13 @@ class Param
     
     @_gui;
     
-    @line = 10;
-    @lineScale = if MY.u.isSmt() then 50 else 100;
+    @cx = 0;
+    @cy = 0;
+    @cz = 2;
+    
+    @cDirX = 0;
+    @cDirY = 0;
+    @cDirZ = -1;
     
     @callBack = {};
     
@@ -31,8 +36,12 @@ class Param
     if MY.conf.FLG.PARAM
     
       @_gui = new dat.GUI();
-      @_setGuiNum("line", 0, 20, 0.1);
-      @_setGuiNum("lineScale", 0, 400, 1);
+      @_setGuiNum("cx", -10, 10, 0.1);
+      @_setGuiNum("cy", -10, 10, 0.1);
+      @_setGuiNum("cz", -10, 10, 0.1);
+      @_setGuiNum("cDirX", -10, 10, 0.1);
+      @_setGuiNum("cDirY", -10, 10, 0.1);
+      @_setGuiNum("cDirZ", -10, 10, 0.1);
   
   
   # -----------------------------------------------
