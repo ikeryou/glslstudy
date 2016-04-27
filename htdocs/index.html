@@ -104,9 +104,9 @@
       return mod(p, n) - n * 0.5;
     }
     
-    // 距離関数 床
-    float distFuncFloor(vec3 p) {
-      return dot(p, vec3(0.0, 1.0, 0.0)) + 1.0;
+    // 距離関数 ボックス
+    float distFuncBox(vec3 p) {
+      return length(max(abs(p) - vec3(2.0, 0.1, 0.5), 0.0)) - 0.1;
     }
     
     // 距離関数 トーラス
@@ -118,8 +118,9 @@
     
     float distFunc(vec3 p) {
       float d1 = distFuncTorus(p);
-      float d2 = distFuncFloor(p);
-      return min(d1, d2);
+      float d2 = distFuncBox(p);
+      //return max(d1, d2);
+      return max(-d1, d2);
     }
     
     // 法線算出
