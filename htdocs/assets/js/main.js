@@ -48,39 +48,44 @@ Contents = (function() {
     this.init = bind(this.init, this);
     this._c;
     this._gl;
+    this._prg;
+    this._mdl;
+    this._startTime = new Date().getTime();
   }
 
   Contents.prototype.init = function() {
-    var cParam;
-    this._m = new matIV();
     this._c = document.getElementById("xCanvas");
-    cParam = {
-      stencil: true
-    };
-    this._gl = this._c.getContext('webgl', cParam) || this._c.getContext('experimental-webgl', cParam);
+    this._gl = this._c.getContext('webgl') || this._c.getContext('experimental-webgl');
+    this._prg = this._createProgram(this._createShader("vs"), this._createShader("fs"));
+    this._mdl = this._plane();
+    this._gl.bindBuffer(this._gl.ELEMENT_ARRAY_BUFFER, this._createIBO(this._mdl.i));
+    this._attachVBO(this._prg, "position", 3, this._mdl.p);
+    this._gl.clearColor(0.0, 0.0, 0.0, 1.0);
     MY.resize.add(this._resize, true);
     return MY.update.add(this._update);
   };
 
   Contents.prototype._resize = function(w, h) {
-    var scale1, scale2;
-    if ((window.devicePixelRatio != null) && window.devicePixelRatio >= 2) {
-      scale1 = 2;
-      scale2 = 1;
-    } else {
-      scale1 = 1;
-      scale2 = 1;
-    }
-    this._c.width = w * scale1;
-    this._c.height = h * scale1;
+    w = h = 256 * 2;
+    this._c.width = w;
+    this._c.height = h;
     $("#xCanvas").css({
-      width: w * scale2,
-      height: h * scale2
+      width: w,
+      height: h
     });
     return this._gl.viewport(0, 0, this._c.width, this._c.height);
   };
 
-  Contents.prototype._update = function() {};
+  Contents.prototype._update = function() {
+    var time;
+    time = (new Date().getTime() - this._startTime) * 0.001;
+    this._gl.clear(this._gl.COLOR_BUFFER_BIT);
+    this._attachUniform(this._prg, "time", "float", time);
+    this._attachUniform(this._prg, "mouse", "vec2", [MY.mouse.x, MY.mouse.y]);
+    this._attachUniform(this._prg, "resolution", "vec2", [this._c.width, this._c.height]);
+    this._gl.drawElements(this._gl.TRIANGLES, this._mdl.i.length, this._gl.UNSIGNED_SHORT, 0);
+    return this._gl.flush();
+  };
 
   Contents.prototype._createShader = function(id) {
     var scriptElement, shader;
@@ -126,7 +131,8 @@ Contents = (function() {
     vbo = this._createVBO(data);
     this._gl.bindBuffer(this._gl.ARRAY_BUFFER, vbo);
     this._gl.enableVertexAttribArray(attLocation);
-    return this._gl.vertexAttribPointer(attLocation, attStride, this._gl.FLOAT, false, 0, 0);
+    this._gl.vertexAttribPointer(attLocation, attStride, this._gl.FLOAT, false, 0, 0);
+    return this._gl.bindBuffer(this._gl.ARRAY_BUFFER, null);
   };
 
   Contents.prototype._createIBO = function(data) {
@@ -229,7 +235,7 @@ Contents = (function() {
     return {
       p: [-1.0, 1.0, 0.0, 1.0, 1.0, 0.0, -1.0, -1.0, 0.0, 1.0, -1.0, 0.0],
       c: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
-      i: [0, 1, 2, 3, 2, 1]
+      i: [0, 2, 1, 1, 2, 3]
     };
   };
 

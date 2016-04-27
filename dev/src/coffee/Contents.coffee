@@ -18,7 +18,13 @@ class Contents
     # WebGLコンテキスト
     @_gl;
     
+    # プログラムオブジェクト
+    @_prg;
     
+    # モデルオブジェクト
+    @_mdl;
+    
+    @_startTime = new Date().getTime();
     
     
   
@@ -28,15 +34,23 @@ class Contents
   # -----------------------------------------------
   init: =>
     
-    # 行列演算オブジェクト
-    @_m = new matIV();
-    
     # Canvas要素取得
     @_c = document.getElementById("xCanvas");
     
     # WebGLコンテキスト取得
-    cParam = {stencil: true};
-    @_gl = @_c.getContext('webgl', cParam) || @_c.getContext('experimental-webgl', cParam);
+    @_gl = @_c.getContext('webgl') || @_c.getContext('experimental-webgl');
+    
+    # プログラムオブジェクト作成
+    @_prg = @_createProgram(@_createShader("vs"), @_createShader("fs"));
+    
+    # モデルオブジェクト
+    @_mdl = @_plane();
+    
+    # IBO設定
+    @_gl.bindBuffer(@_gl.ELEMENT_ARRAY_BUFFER, @_createIBO(@_mdl.i));
+    @_attachVBO(@_prg, "position", 3, @_mdl.p);
+    
+    @_gl.clearColor(0.0, 0.0, 0.0, 1.0);
     
     MY.resize.add(@_resize, true);
     MY.update.add(@_update);
@@ -48,22 +62,33 @@ class Contents
   # -----------------------------------------------
   _resize: (w, h) =>
     
-    if window.devicePixelRatio? && window.devicePixelRatio >= 2
-      scale1 = 2;
-      scale2 = 1;
-    else
-      scale1 = 1;
-      scale2 = 1;
-      
-    @_c.width = w * scale1;
-    @_c.height = h * scale1;
+    # 一旦サイズ固定
+    w = h = 256*2;
+    @_c.width = w;
+    @_c.height = h;
     $("#xCanvas").css({
-      width:w * scale2, 
-      height:h * scale2
+      width:w, 
+      height:h
     });
     
-    # ビュー×プロジェクション座標変換行列更新
     @_gl.viewport(0, 0, @_c.width, @_c.height);
+    
+#     if window.devicePixelRatio? && window.devicePixelRatio >= 2
+#       scale1 = 2;
+#       scale2 = 1;
+#     else
+#       scale1 = 1;
+#       scale2 = 1;
+#       
+#     @_c.width = w * scale1;
+#     @_c.height = h * scale1;
+#     $("#xCanvas").css({
+#       width:w * scale2, 
+#       height:h * scale2
+#     });
+#     
+#     # ビュー×プロジェクション座標変換行列更新
+#     @_gl.viewport(0, 0, @_c.width, @_c.height);
   
   
   
@@ -72,7 +97,23 @@ class Contents
   # -----------------------------------------------
   _update: =>
     
+    time = (new Date().getTime() - @_startTime) * 0.001;
     
+    @_gl.clear(@_gl.COLOR_BUFFER_BIT);
+    
+    # uniform変数
+    @_attachUniform(@_prg, "time", "float", time);
+    @_attachUniform(@_prg, "mouse", "vec2", [MY.mouse.x, MY.mouse.y]);
+    @_attachUniform(@_prg, "resolution", "vec2", [@_c.width, @_c.height]);
+    
+    # 描画
+    @_gl.drawElements(@_gl.TRIANGLES, @_mdl.i.length, @_gl.UNSIGNED_SHORT, 0);
+    @_gl.flush();
+  
+  
+  
+  
+  
   
   
   
@@ -172,6 +213,9 @@ class Contents
     @_gl.bindBuffer(@_gl.ARRAY_BUFFER, vbo);
     @_gl.enableVertexAttribArray(attLocation);
     @_gl.vertexAttribPointer(attLocation, attStride, @_gl.FLOAT, false, 0, 0);
+    
+    # バッファのバインドを無効化
+    @_gl.bindBuffer(@_gl.ARRAY_BUFFER, null);
   
   
   
@@ -349,8 +393,8 @@ class Contents
         1.0, 1.0, 1.0, 1.0
       ],
       i:[
-        0, 1, 2,
-        3, 2, 1
+        0, 2, 1,
+        1, 2, 3
       ]
     };
   
