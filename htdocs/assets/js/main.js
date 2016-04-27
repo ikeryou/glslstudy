@@ -4,7 +4,7 @@ var Conf;
 Conf = (function() {
   function Conf() {
     var key, ref, val;
-    this.RELEASE = true;
+    this.RELEASE = false;
     this.FLG = {
       LOG: true,
       PARAM: true,
