@@ -63,32 +63,31 @@ class Contents
   _resize: (w, h) =>
     
     # 一旦サイズ固定
-    w = h = 256*2;
-    @_c.width = w;
-    @_c.height = h;
+#     w = h = 256*2;
+#     @_c.width = w;
+#     @_c.height = h;
+#     $("#xCanvas").css({
+#       width:w, 
+#       height:h
+#     });
+#     
+#     @_gl.viewport(0, 0, @_c.width, @_c.height);
+    
+    if window.devicePixelRatio? && window.devicePixelRatio >= 2
+      scale1 = 2;
+      scale2 = 1;
+    else
+      scale1 = 1;
+      scale2 = 1;
+      
+    @_c.width = w * scale1;
+    @_c.height = h * scale1;
     $("#xCanvas").css({
-      width:w, 
-      height:h
+      width:w * scale2, 
+      height:h * scale2
     });
     
     @_gl.viewport(0, 0, @_c.width, @_c.height);
-    
-#     if window.devicePixelRatio? && window.devicePixelRatio >= 2
-#       scale1 = 2;
-#       scale2 = 1;
-#     else
-#       scale1 = 1;
-#       scale2 = 1;
-#       
-#     @_c.width = w * scale1;
-#     @_c.height = h * scale1;
-#     $("#xCanvas").css({
-#       width:w * scale2, 
-#       height:h * scale2
-#     });
-#     
-#     # ビュー×プロジェクション座標変換行列更新
-#     @_gl.viewport(0, 0, @_c.width, @_c.height);
   
   
   
@@ -103,7 +102,7 @@ class Contents
     
     # uniform変数
     @_attachUniform(@_prg, "time", "float", time);
-    @_attachUniform(@_prg, "mouse", "vec2", [MY.mouse.x, MY.mouse.y]);
+    @_attachUniform(@_prg, "mouse", "vec2", [MY.mouse.x / @_c.width, MY.mouse.y / @_c.height]);
     @_attachUniform(@_prg, "resolution", "vec2", [@_c.width, @_c.height]);
     
     # 描画

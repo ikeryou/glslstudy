@@ -66,12 +66,19 @@ Contents = (function() {
   };
 
   Contents.prototype._resize = function(w, h) {
-    w = h = 256 * 2;
-    this._c.width = w;
-    this._c.height = h;
+    var scale1, scale2;
+    if ((window.devicePixelRatio != null) && window.devicePixelRatio >= 2) {
+      scale1 = 2;
+      scale2 = 1;
+    } else {
+      scale1 = 1;
+      scale2 = 1;
+    }
+    this._c.width = w * scale1;
+    this._c.height = h * scale1;
     $("#xCanvas").css({
-      width: w,
-      height: h
+      width: w * scale2,
+      height: h * scale2
     });
     return this._gl.viewport(0, 0, this._c.width, this._c.height);
   };
@@ -81,7 +88,7 @@ Contents = (function() {
     time = (new Date().getTime() - this._startTime) * 0.001;
     this._gl.clear(this._gl.COLOR_BUFFER_BIT);
     this._attachUniform(this._prg, "time", "float", time);
-    this._attachUniform(this._prg, "mouse", "vec2", [MY.mouse.x, MY.mouse.y]);
+    this._attachUniform(this._prg, "mouse", "vec2", [MY.mouse.x / this._c.width, MY.mouse.y / this._c.height]);
     this._attachUniform(this._prg, "resolution", "vec2", [this._c.width, this._c.height]);
     this._gl.drawElements(this._gl.TRIANGLES, this._mdl.i.length, this._gl.UNSIGNED_SHORT, 0);
     return this._gl.flush();
