@@ -35,7 +35,7 @@
     uniform vec2 mouse;
     uniform vec2 resolution;
     
-    const float sphereSize = 1.0;
+    const vec3 boxSize = vec3(0.5, 0.5, 0.5);
     const vec3 lightDir = vec3(-0.577, 0.577, 0.577);
     
     const int   oct      = 8;
@@ -105,7 +105,10 @@
     
     // 距離関数 Sphere
     float distanceFunc(vec3 p) {
-      return length(trans(p)) - sphereSize;
+      //vec3 q = abs(trans(p));
+      vec3 q = abs(p);
+      //return length(max(q - boxSize, 0.0));
+      return length(max(q - boxSize, 0.0)) - 0.1; // 角丸
     }
     
     // 法線算出
@@ -133,7 +136,6 @@
       float targetDepth = 1.0;
       
       // ray 
-      //vec3 ray = normalize(cSide * p.x + cUp * p.y + cDir * targetDepth);
       vec3 ray = normalize(vec3(sin(fov) * p.x, sin(fov) * p.y, -cos(fov)));
       
       float distance = 0.0;
@@ -147,7 +149,7 @@
       
       if(abs(distance) < 0.001) {
         vec3 normal = getNormal(rPos);
-        float diff = clamp(dot(lightDir, normal), 0.1, 1.0);
+        float diff = clamp(dot(lightDir, normal), 0.2, 1.0);
         gl_FragColor = vec4(vec3(diff), 1.0);
       } else {
         gl_FragColor = vec4(vec3(0.0), 1.0);
