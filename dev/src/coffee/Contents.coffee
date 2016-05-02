@@ -50,7 +50,7 @@ class Contents
     @_gl.bindBuffer(@_gl.ELEMENT_ARRAY_BUFFER, @_createIBO(@_mdl.i));
     @_attachVBO(@_prg, "position", 3, @_mdl.p);
     
-    @_gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    @_gl.clearColor(1.0, 1.0, 1.0, 1.0);
     
     MY.resize.add(@_resize, true);
     MY.update.add(@_update);
@@ -72,6 +72,8 @@ class Contents
 #     });
 #     
 #     @_gl.viewport(0, 0, @_c.width, @_c.height);
+    
+    w = h = 200;
     
     if window.devicePixelRatio? && window.devicePixelRatio >= 2
       scale1 = 2;
@@ -99,6 +101,7 @@ class Contents
     time = (new Date().getTime() - @_startTime) * 0.001;
     
     @_gl.clear(@_gl.COLOR_BUFFER_BIT);
+    @_gl.clearColor(1.0, 1.0, 1.0, 1.0);
     
     # uniform変数
     @_attachUniform(@_prg, "time", "float", time);

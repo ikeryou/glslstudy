@@ -60,13 +60,14 @@ Contents = (function() {
     this._mdl = this._plane();
     this._gl.bindBuffer(this._gl.ELEMENT_ARRAY_BUFFER, this._createIBO(this._mdl.i));
     this._attachVBO(this._prg, "position", 3, this._mdl.p);
-    this._gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    this._gl.clearColor(1.0, 1.0, 1.0, 1.0);
     MY.resize.add(this._resize, true);
     return MY.update.add(this._update);
   };
 
   Contents.prototype._resize = function(w, h) {
     var scale1, scale2;
+    w = h = 200;
     if ((window.devicePixelRatio != null) && window.devicePixelRatio >= 2) {
       scale1 = 2;
       scale2 = 1;
@@ -87,6 +88,7 @@ Contents = (function() {
     var time;
     time = (new Date().getTime() - this._startTime) * 0.001;
     this._gl.clear(this._gl.COLOR_BUFFER_BIT);
+    this._gl.clearColor(1.0, 1.0, 1.0, 1.0);
     this._attachUniform(this._prg, "time", "float", time);
     this._attachUniform(this._prg, "mouse", "vec2", [MY.mouse.x / this._c.width, MY.mouse.y / this._c.height]);
     this._attachUniform(this._prg, "resolution", "vec2", [this._c.width, this._c.height]);
