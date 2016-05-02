@@ -34,8 +34,8 @@
     uniform float time;
     uniform vec2 mouse;
     uniform vec2 resolution;
-    uniform vec3 cPos;
-    uniform vec3 cDir;
+    //uniform vec3 cPos;
+    //uniform vec3 cDir;
     
     const vec3 lightDir = vec3(-0.57, 0.57, 0.57);
     
@@ -106,21 +106,28 @@
     
     // 距離関数 ボックス
     float distFuncBox(vec3 p) {
-      return length(max(abs(p) - vec3(2.0, 0.1, 0.5), 0.0)) - 0.1;
+      return length(max(abs(p) - vec3(2.0, 0.001, 0.001), 0.0)) - 0.05;
     }
     
     // 距離関数 トーラス
     float distFuncTorus(vec3 p) {
-      vec2 t = vec2(0.75, 0.25);
+      vec2 t = vec2(1.5, 0.25);
       vec2 r = vec2(length(p.xy) - t.x, p.z);
       return length(r) - t.y;
     }
     
+    // 補間関数
+    float smoothMin(float d1, float d2, float k) {
+      float h = exp(-k * d1) + exp(-k * d2);
+      return -log(h) / k;
+    }
+    
     float distFunc(vec3 p) {
-      float d1 = distFuncTorus(p);
+      //float d1 = distFuncTorus(p);
       float d2 = distFuncBox(p);
+      return d2;
       //return max(d1, d2);
-      return max(-d1, d2);
+      //return smoothMin(d1, d2, 2.0);
     }
     
     // 法線算出
@@ -134,6 +141,8 @@
     }
     
     
+    
+    
     void main(void) {
       
       // -1 ~ 1
@@ -141,8 +150,8 @@
       vec2 p = (gl_FragCoord.xy * 2.0 - resolution) / min(resolution.x, resolution.y);
       
       // camera
-      //vec3 cPos = vec3(0.0, 0.0, 2.0);
-      //vec3 cDir = vec3(0.0, 0.0, -1.0);
+      vec3 cPos = vec3(m.x, m.y, 5.0);
+      vec3 cDir = vec3(m.x, m.y, -1.0);
       vec3 cUp  = vec3(0.0, 1.0, 0.0);
       vec3 cSide = cross(cDir, cUp);
       float targetDepth = 1.0;
@@ -154,7 +163,7 @@
       float tmp, dist;
       tmp = 0.0;
       vec3 dPos = cPos;
-      for(int i = 0; i < 64; i++) {
+      for(int i = 0; i < 10; i++) {
         dist = distFunc(dPos);
         tmp += dist;
         dPos = cPos + tmp * ray;

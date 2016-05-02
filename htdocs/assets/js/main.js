@@ -420,9 +420,9 @@ Param = (function() {
     this._setGuiNum = bind(this._setGuiNum, this);
     this._init = bind(this._init, this);
     this._gui;
-    this.cx = 0;
-    this.cy = 0;
-    this.cz = 2;
+    this.cx = 1;
+    this.cy = 2;
+    this.cz = 4.5;
     this.cDirX = 0;
     this.cDirY = 0;
     this.cDirZ = -1;

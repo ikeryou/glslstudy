@@ -13,9 +13,9 @@ class Param
     
     @_gui;
     
-    @cx = 0;
-    @cy = 0;
-    @cz = 2;
+    @cx = 1;
+    @cy = 2;
+    @cz = 4.5;
     
     @cDirX = 0;
     @cDirY = 0;
